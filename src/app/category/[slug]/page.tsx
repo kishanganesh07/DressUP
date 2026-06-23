@@ -17,15 +17,44 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
-        filtered.sort((a, b) => a.price - b.price);
-      } else if (sortOption === "price-high") {
-        filtered.sort((a, b) => b.price - a.price);
+    const timer = setTimeout(async () => {
+      setLoading(true);
+      try {
+        const isMen = slug.includes("mens") || slug.includes("men");
+        const categoryParam = isMen ? "Men" : "Women";
+        
+        const { data } = await axios.get(`/api/products?category=${categoryParam}`);
+        if (data.success) {
+          // Format slug for filtering
+          const searchStr = slug.replace("mens-", "").replace("womens-", "").replace(/-/g, " ");
+          const keywords = searchStr.split(' ').filter(k => k.length > 2);
+          
+          let filtered = data.data.filter((p: any) => {
+            const textToSearch = `${p.subcategory || ''} ${p.name || ''} ${p.category || ''}`.toLowerCase();
+            // If no keywords (e.g. just "mens"), return all. Otherwise check if any keyword matches.
+            if (keywords.length === 0) return true;
+            return keywords.some(kw => textToSearch.includes(kw));
+          });
+          
+          if (selectedSize !== "all") {
+            filtered = filtered.filter((p: any) => p.sizes && p.sizes.includes(selectedSize));
+          }
+
+          if (sortOption === "price-low") {
+            filtered.sort((a: any, b: any) => a.price - b.price);
+          } else if (sortOption === "price-high") {
+            filtered.sort((a: any, b: any) => b.price - a.price);
+          }
+          
+          setProducts(filtered);
+          setCurrentPage(1); // Reset to page 1 on filter/sort changes
+        }
+      } catch (error) {
+        console.error("Failed to fetch category products", error);
+      } finally {
+        setLoading(false);
       }
-      
-      setProducts(filtered);
-      setCurrentPage(1); // Reset to page 1 on filter/sort changes
-      setLoading(false);
-    }, 500);
+    }, 300);
 
     return () => clearTimeout(timer);
   }, [slug, sortOption, selectedSize]);
