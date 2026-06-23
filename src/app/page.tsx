@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import axios from "axios";
+// Remove axios import
 import Link from "next/link";
 import { Truck, Hand, ShieldCheck, Ruler } from "lucide-react";
 import WishlistButton from "@/Components/WishlistButton";
@@ -56,7 +56,8 @@ export default function Home() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const { data } = await axios.get('/api/products');
+        const res = await fetch('/api/products');
+        const data = await res.json();
         if (data.success) {
           setProducts(data.data.slice(0, 10)); // Fetch some products for recommended
         }

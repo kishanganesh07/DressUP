@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import axios from "axios";
+// Remove axios import
 
 export default function Login() {
   const router = useRouter();
@@ -21,19 +21,23 @@ export default function Login() {
     setError("");
 
     try {
-      const res = await axios.post("/api/auth/login", formData);
-      if (res.data.success) {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      
+      if (data.success) {
         // Store the token (in a real app, use HTTP-only cookies or context provider)
-        localStorage.setItem("token", res.data.token);
-        localStorage.setItem("user", JSON.stringify(res.data.user));
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
         router.push("/");
       } else {
-        setError(res.data.message || "Invalid credentials.");
+        setError(data.message || "Invalid credentials.");
       }
     } catch (err: unknown) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const error = err as any;
-      setError(error.response?.data?.message || "Invalid credentials.");
+      setError("Invalid credentials.");
     } finally {
       setLoading(false);
     }

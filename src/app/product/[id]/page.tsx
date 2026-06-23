@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import axios from "axios";
+// Remove axios import
 import { useCart } from "@/context/CartContext";
 import { MOCK_PRODUCTS } from "@/lib/mockData";
 import Link from "next/link";
@@ -34,11 +34,12 @@ export default function ProductDetail() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await axios.get(`/api/products/${id}`);
-        if (res.data.success) {
-          setProduct(res.data.data);
-          if (res.data.data.sizes?.length) setSelectedSize(res.data.data.sizes[0]);
-          if (res.data.data.colors?.length) setSelectedColor(res.data.data.colors[0]);
+        const res = await fetch(`/api/products/${id}`);
+        const data = await res.json();
+        if (data.success) {
+          setProduct(data.data);
+          if (data.data.sizes?.length) setSelectedSize(data.data.sizes[0]);
+          if (data.data.colors?.length) setSelectedColor(data.data.colors[0]);
         } else {
           fallbackToMock();
         }

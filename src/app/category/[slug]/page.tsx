@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Filter, ChevronDown, Check } from "lucide-react";
 import WishlistButton from "@/Components/WishlistButton";
 import Link from "next/link";
-import axios from "axios";
+// Remove axios import
 import { use } from "react";
 
 export default function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -23,7 +23,8 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
         const isMen = slug.includes("mens") || slug.includes("men");
         const categoryParam = isMen ? "Men" : "Women";
         
-        const { data } = await axios.get(`/api/products?category=${categoryParam}`);
+        const res = await fetch(`/api/products?category=${categoryParam}`);
+        const data = await res.json();
         if (data.success) {
           // Format slug for filtering
           const searchStr = slug.replace("mens-", "").replace("womens-", "").replace(/-/g, " ");

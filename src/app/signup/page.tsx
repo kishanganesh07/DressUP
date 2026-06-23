@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import axios from "axios";
+// Remove axios import
 
 export default function Signup() {
   const router = useRouter();
@@ -21,16 +21,19 @@ export default function Signup() {
     setError("");
 
     try {
-      const res = await axios.post("/api/auth/signup", formData);
-      if (res.data.success) {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (data.success) {
         router.push("/login");
       } else {
-        setError(res.data.message || "Something went wrong.");
+        setError(data.message || "Something went wrong.");
       }
     } catch (err: unknown) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const error = err as any;
-      setError(error.response?.data?.message || "Something went wrong.");
+      setError("Something went wrong.");
     } finally {
       setLoading(false);
     }

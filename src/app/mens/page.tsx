@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { Truck, Hand, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import WishlistButton from "@/Components/WishlistButton";
-import axios from "axios";
+// Remove axios import
 
 const mensCategories = [
   { name: "POLO T-SHIRTS",  path: "mens-polo-t-shirts", image: "https://i.pinimg.com/736x/bb/9c/49/bb9c49f465840c06b0b01e2ee6748196.jpg" },
@@ -97,7 +97,8 @@ export default function MensPage() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const { data } = await axios.get('/api/products?category=Men');
+        const res = await fetch('/api/products?category=Men');
+        const data = await res.json();
         if (data.success) {
           setProducts(data.data);
         }
