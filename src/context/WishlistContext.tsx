@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 export type WishlistItem = {
   _id: string;
@@ -21,33 +22,76 @@ const WishlistContext = createContext<WishlistContextType | undefined>(undefined
 
 export function WishlistProvider({ children }: { children: ReactNode }) {
   const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
+  const router = useRouter();
 
-  // Load wishlist from localStorage on mount
+  // Load from API if logged in
   useEffect(() => {
-    const savedWishlist = localStorage.getItem("wishlist");
-    if (savedWishlist) {
-      try {
-        setWishlistItems(JSON.parse(savedWishlist));
-      } catch (e) {
-        console.error("Failed to parse wishlist from local storage", e);
+    const fetchWishlist = async () => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        try {
+          const res = await fetch("/api/user/wishlist", {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          const data = await res.json();
+          if (data.success) {
+            setWishlistItems(data.wishlist);
+          }
+        } catch (error) {
+          console.error("Failed to fetch wishlist");
+        }
       }
-    }
+    };
+    fetchWishlist();
   }, []);
 
-  // Save wishlist to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem("wishlist", JSON.stringify(wishlistItems));
-  }, [wishlistItems]);
+  // Sync to API on changes
+  const syncWishlist = async (newWishlist: WishlistItem[]) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        await fetch("/api/user/wishlist", {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}` 
+          },
+          body: JSON.stringify({ wishlist: newWishlist }),
+        });
+      } catch (error) {
+        console.error("Failed to sync wishlist", error);
+      }
+    }
+  };
+
+  const requireAuth = () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("Please login to use the wishlist");
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event('openAuthModal'));
+      }
+      return false;
+    }
+    return true;
+  };
 
   const toggleWishlist = (item: WishlistItem) => {
+    if (!requireAuth()) return;
+
     const exists = wishlistItems.some((i) => i._id === item._id);
-    if (exists) {
-      toast.success("Removed from wishlist", { id: `wishlist-${item._id}` });
-      setWishlistItems((prev) => prev.filter((i) => i._id !== item._id));
-    } else {
-      toast.success("Added to wishlist", { id: `wishlist-${item._id}` });
-      setWishlistItems((prev) => [...prev, item]);
-    }
+    setWishlistItems((prev) => {
+      let newWishlist;
+      if (exists) {
+        toast.success("Removed from wishlist", { id: `wishlist-${item._id}` });
+        newWishlist = prev.filter((i) => i._id !== item._id);
+      } else {
+        toast.success("Added to wishlist", { id: `wishlist-${item._id}` });
+        newWishlist = [...prev, item];
+      }
+      syncWishlist(newWishlist);
+      return newWishlist;
+    });
   };
 
   const isInWishlist = (id: string) => {

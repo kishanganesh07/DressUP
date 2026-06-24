@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import mongoose from "mongoose";
 import connectDb from "@/lib/mongodb";
 import MenPoloTShirt from "@/models/men/MenPoloTShirt";
 import MenRoundNeckTShirt from "@/models/men/MenRoundNeckTShirt";
@@ -32,9 +33,22 @@ export async function GET(
     
     // Search across all models for the given ID
     let product = null;
+    const isObjectId = mongoose.isValidObjectId(id);
+
     for (const model of allModels) {
+      // 1. Try finding by string ID (Mongoose casts this to string per schema)
       product = await model.findById(id).lean();
       if (product) break;
+
+      // 2. If it's a valid ObjectId, the document might have been inserted with a native ObjectId
+      // We bypass Mongoose's schema casting by querying the raw collection
+      if (isObjectId) {
+        product = await model.collection.findOne({ _id: new mongoose.Types.ObjectId(id) });
+        if (product) {
+          (product as any)._id = (product as any)._id.toString(); // Convert ObjectId back to string for the client
+          break;
+        }
+      }
     }
 
     if (!product) {

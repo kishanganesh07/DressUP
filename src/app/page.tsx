@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-// Remove axios import
 import Link from "next/link";
+import ProductCard from "@/Components/ProductCard";
+import { motion } from "framer-motion";
 import { Truck, Hand, ShieldCheck, Ruler } from "lucide-react";
 import WishlistButton from "@/Components/WishlistButton";
 
@@ -10,6 +11,9 @@ export default function Home() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [canScrollLeftRec, setCanScrollLeftRec] = useState(false);
+  const [canScrollRightRec, setCanScrollRightRec] = useState(true);
 
 
 
@@ -28,6 +32,19 @@ export default function Home() {
       scrollRef.current.scrollBy({ left: 320, behavior: "smooth" });
     }
   };
+
+  const handleRecScroll = () => {
+    if (scrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      setCanScrollLeftRec(scrollLeft > 0);
+      setCanScrollRightRec(scrollLeft + clientWidth < scrollWidth - 5);
+    }
+  };
+
+  // Run once on products load to set initial state
+  useEffect(() => {
+    handleRecScroll();
+  }, [products]);
 
 
 
@@ -59,7 +76,26 @@ export default function Home() {
         const res = await fetch('/api/products');
         const data = await res.json();
         if (data.success) {
-          setProducts(data.data.slice(0, 10)); // Fetch some products for recommended
+          const mensProducts = data.data.filter((p: any) => p.category?.includes('Men') || p.name?.includes('Men'));
+          const womensProducts = data.data.filter((p: any) => p.category?.includes('Women') || p.name?.includes('Women'));
+
+          const diverseProducts = [];
+          
+          // Pick 9 Men's items
+          const menStep = Math.max(1, Math.floor(mensProducts.length / 9));
+          for (let i = 0; i < 9 && (i * menStep) < mensProducts.length; i++) {
+            diverseProducts.push(mensProducts[i * menStep]);
+          }
+
+          // Pick 3 Women's items
+          const womenStep = Math.max(1, Math.floor(womensProducts.length / 3));
+          for (let i = 0; i < 3 && (i * womenStep) < womensProducts.length; i++) {
+            diverseProducts.push(womensProducts[i * womenStep]);
+          }
+
+          // Shuffle the final array so it's a natural mix
+          const shuffled = diverseProducts.sort(() => 0.5 - Math.random());
+          setProducts(shuffled);
         }
       } catch (error) {
         console.error("Failed to fetch products", error);
@@ -88,44 +124,113 @@ export default function Home() {
         </video>
         
         {/* Subtle Dark Overlay to ensure perfect text readability */}
-        <div className="absolute inset-0 bg-black/40 z-0"></div>
+        <div className="absolute inset-0 bg-black/50 z-0"></div>
 
-        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto flex flex-col items-center">
-          <h1 className="text-6xl md:text-8xl font-black tracking-tighter mb-6 text-white uppercase drop-shadow-2xl">
-            The New Collection
-          </h1>
-          <p className="text-lg md:text-xl text-zinc-200 mb-10 max-w-2xl mx-auto font-medium tracking-widest uppercase drop-shadow-md">
-            Minimalist design. Premium materials. Discover the latest arrivals for this season.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/mens" className="w-full sm:w-auto text-center px-12 py-4 text-sm font-bold tracking-widest uppercase text-white bg-zinc-900 hover:bg-black transition-all duration-300 shadow-xl hover:shadow-2xl">
-              Shop Men
-            </Link>
-            <Link href="/womens" className="w-full sm:w-auto text-center px-12 py-4 text-sm font-bold tracking-widest uppercase text-zinc-900 bg-white border border-zinc-900 hover:bg-zinc-100 transition-all duration-300 shadow-xl hover:shadow-2xl">
-              Shop Women
-            </Link>
+        <div className="relative z-10 w-full px-4 max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between h-full pt-10">
+          
+          {/* Main Hero Text */}
+          <div className="flex flex-col items-center md:items-start text-center md:text-left md:max-w-2xl">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              <h1 className="flex flex-col text-left mb-8 drop-shadow-2xl relative">
+                <motion.span 
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.8, delay: 0.2 }}
+                  className="text-6xl md:text-7xl italic font-serif font-light text-[#D4AF37] mb-14 md:mb-4 ml-2 z-10 relative"
+                >
+                  The
+                </motion.span>
+                <span className="text-7xl md:text-[8rem] font-serif font-bold tracking-tighter leading-[0.85] text-white uppercase relative z-0">
+                  New<br/>Collection
+                </span>
+              </h1>
+              <motion.div 
+                initial={{ width: 0 }}
+                animate={{ width: "4rem" }}
+                transition={{ duration: 1, delay: 0.6 }}
+                className="h-[2px] bg-[#D4AF37] mb-8 ml-2"
+              ></motion.div>
+              <p className="text-xs md:text-sm text-zinc-200 mb-10 max-w-md font-sans font-medium tracking-[0.25em] uppercase drop-shadow-md ml-2 leading-relaxed opacity-90">
+                Discover premium fashion crafted for modern lifestyles. Elevated essentials, timeless aesthetics.
+              </p>
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                <Link href="/mens" className="w-full sm:w-auto text-center px-10 py-4 text-[11px] font-bold tracking-[0.2em] uppercase text-zinc-900 bg-white hover:bg-[#D4AF37] hover:text-white transition-colors duration-500 shadow-xl">
+                  Shop Men
+                </Link>
+                <Link href="/womens" className="w-full sm:w-auto text-center px-10 py-4 text-[11px] font-bold tracking-[0.2em] uppercase text-white bg-transparent border border-white hover:bg-white hover:text-zinc-900 transition-colors duration-500 shadow-xl">
+                  Shop Women
+                </Link>
+              </div>
+            </motion.div>
           </div>
+
+          {/* Floating Statistics */}
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="hidden md:flex flex-col gap-8 text-right border-l border-white/20 pl-8"
+          >
+            <div>
+              <p className="text-4xl font-serif text-white mb-1">15k<span className="text-[#D4AF37]">+</span></p>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-zinc-300">Happy Customers</p>
+            </div>
+            <div>
+              <p className="text-4xl font-serif text-white mb-1">500<span className="text-[#D4AF37]">+</span></p>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-zinc-300">Premium Products</p>
+            </div>
+            <div>
+              <p className="text-4xl font-serif text-white mb-1">50<span className="text-[#D4AF37]">+</span></p>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-zinc-300">Global Brands</p>
+            </div>
+          </motion.div>
         </div>
       </section>
 
       {/* Shop By Category Section */}
-      <section className="max-w-[1600px] mx-auto px-6 lg:px-12 pt-24 pb-12 relative z-20">
-        <h2 className="text-xl font-bold tracking-widest text-center text-zinc-900 mb-12 uppercase">Shop By Category</h2>
-        <div className="flex flex-wrap justify-center gap-8 md:gap-24">
-          <div className="flex flex-col items-center group cursor-pointer">
-            <div className="w-32 h-32 md:w-48 md:h-48 rounded-full overflow-hidden mb-6 ring-1 ring-zinc-200 group-hover:ring-zinc-900 transition-all duration-300">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="https://images.unsplash.com/photo-1617137984095-74e4e5e3613f?q=80&w=800&auto=format&fit=crop" alt="Men" className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-700" />
+      <section className="max-w-7xl mx-auto px-4 lg:px-8 pt-24 pb-12 relative z-20">
+        <div className="flex flex-col md:flex-row gap-6">
+          {/* Men Category Card */}
+          <Link href="/mens" className="relative group w-full md:w-1/2 h-[400px] md:h-[600px] overflow-hidden bg-zinc-900 shadow-2xl">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img 
+              src="https://images.unsplash.com/photo-1617137984095-74e4e5e3613f?q=80&w=1200&auto=format&fit=crop" 
+              alt="Men" 
+              className="absolute inset-0 w-full h-full object-cover object-top opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 ease-out" 
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+            
+            <div className="absolute bottom-0 left-0 p-8 md:p-12 w-full">
+              <h2 className="text-4xl md:text-5xl font-serif text-white mb-2 group-hover:-translate-y-2 transition-transform duration-500">Men</h2>
+              <p className="text-[10px] text-zinc-300 tracking-[0.2em] uppercase mb-6 group-hover:-translate-y-2 transition-transform duration-500 delay-75">150+ Products</p>
+              <div className="inline-block border border-white text-white text-[10px] font-bold uppercase tracking-[0.2em] px-8 py-3 hover:bg-white hover:text-black transition-colors duration-300">
+                Explore
+              </div>
             </div>
-            <span className="text-sm font-bold tracking-widest uppercase text-zinc-900">Men</span>
-          </div>
-          <div className="flex flex-col items-center group cursor-pointer">
-            <div className="w-32 h-32 md:w-48 md:h-48 rounded-full overflow-hidden mb-6 ring-1 ring-zinc-200 group-hover:ring-zinc-900 transition-all duration-300">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=800&auto=format&fit=crop" alt="Women" className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-700" />
+          </Link>
+
+          {/* Women Category Card */}
+          <Link href="/womens" className="relative group w-full md:w-1/2 h-[400px] md:h-[600px] overflow-hidden bg-zinc-900 shadow-2xl">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img 
+              src="https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1200&auto=format&fit=crop" 
+              alt="Women" 
+              className="absolute inset-0 w-full h-full object-cover object-top opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 ease-out" 
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+            
+            <div className="absolute bottom-0 left-0 p-8 md:p-12 w-full">
+              <h2 className="text-4xl md:text-5xl font-serif text-white mb-2 group-hover:-translate-y-2 transition-transform duration-500">Women</h2>
+              <p className="text-[10px] text-zinc-300 tracking-[0.2em] uppercase mb-6 group-hover:-translate-y-2 transition-transform duration-500 delay-75">200+ Products</p>
+              <div className="inline-block border border-white text-white text-[10px] font-bold uppercase tracking-[0.2em] px-8 py-3 hover:bg-white hover:text-black transition-colors duration-300">
+                Explore
+              </div>
             </div>
-            <span className="text-sm font-bold tracking-widest uppercase text-zinc-900">Women</span>
-          </div>
+          </Link>
         </div>
       </section>
 
@@ -166,8 +271,8 @@ export default function Home() {
 
       {/* Featured Products Section */}
       <section className="max-w-[1600px] mx-auto px-6 lg:px-12 pt-12 pb-24 relative z-20">
-        <div className="mb-12">
-          <h2 className="text-xl font-bold tracking-widest text-zinc-900 text-center uppercase">Recommended For You</h2>
+        <div className="mb-16 border-y border-zinc-200 py-12">
+          <h2 className="text-4xl md:text-6xl font-bold tracking-widest text-zinc-900 text-center uppercase">Recommended For You</h2>
         </div>
 
         {loading ? (
@@ -178,56 +283,27 @@ export default function Home() {
           <div className="relative group/carousel">
             <button 
               onClick={scrollLeft}
-              className="absolute left-0 top-1/3 -translate-y-1/2 -ml-4 md:-ml-6 z-10 bg-white border border-zinc-200 text-zinc-600 rounded-full p-2.5 shadow-md hover:bg-zinc-50 hover:scale-110 hover:text-zinc-900 transition-all opacity-0 group-hover/carousel:opacity-100 hidden md:block"
+              disabled={!canScrollLeftRec}
+              className={`absolute left-0 top-1/3 -translate-y-1/2 -ml-4 md:-ml-6 z-10 bg-white border border-zinc-200 rounded-full p-2.5 shadow-md transition-all hidden md:block ${!canScrollLeftRec ? 'opacity-20 cursor-not-allowed text-zinc-300' : 'opacity-0 group-hover/carousel:opacity-100 hover:bg-zinc-50 hover:scale-110 text-zinc-600 hover:text-zinc-900'}`}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
             </button>
             <button 
               onClick={scrollRight}
-              className="absolute right-0 top-1/3 -translate-y-1/2 -mr-4 md:-mr-6 z-10 bg-white border border-zinc-200 text-zinc-600 rounded-full p-2.5 shadow-md hover:bg-zinc-50 hover:scale-110 hover:text-zinc-900 transition-all opacity-0 group-hover/carousel:opacity-100 hidden md:block"
+              disabled={!canScrollRightRec}
+              className={`absolute right-0 top-1/3 -translate-y-1/2 -mr-4 md:-ml-6 z-10 bg-white border border-zinc-200 rounded-full p-2.5 shadow-md transition-all hidden md:block ${!canScrollRightRec ? 'opacity-20 cursor-not-allowed text-zinc-300' : 'opacity-0 group-hover/carousel:opacity-100 hover:bg-zinc-50 hover:scale-110 text-zinc-600 hover:text-zinc-900'}`}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
             </button>
 
-            <div ref={scrollRef} className="flex overflow-x-auto gap-6 pb-8 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden scroll-smooth">
+            <div 
+              ref={scrollRef} 
+              onScroll={handleRecScroll}
+              className="flex overflow-x-auto gap-6 pb-8 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden scroll-smooth"
+            >
               {filteredProducts.map((product) => (
-                <div key={product._id} className="group relative flex-none w-[75vw] sm:w-[280px] lg:w-[320px] snap-start border border-transparent hover:border-zinc-200 transition-colors bg-white pb-4 rounded-sm">
-                  <div className="aspect-[2/3] w-full overflow-hidden bg-zinc-100 relative cursor-pointer mb-3 rounded-t-sm">
-                    <WishlistButton product={product} />
-                    <Link href={`/product/${product._id}`}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                      src={product.images[0]}
-                      alt={product.name}
-                      className="h-full w-full object-cover object-top group-hover:scale-105 transition-transform duration-700 ease-out"
-                    />
-                  </Link>
-                </div>
-                <div className="px-2">
-                  <div className="text-[10px] text-zinc-400 font-medium mb-1 uppercase tracking-wider">
-                    {product.subcategory || product.category}
-                  </div>
-                  <h3 className="text-sm font-semibold text-zinc-900 mb-1 leading-snug truncate">
-                    <Link href={`/product/${product._id}`}>
-                      <span aria-hidden="true" className="absolute inset-0 z-0"></span>
-                      {product.name}
-                    </Link>
-                  </h3>
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="text-sm text-zinc-400 line-through">₹{Math.floor(product.price * 1.15)}</span>
-                    <span className="text-sm font-bold text-zinc-900">₹{product.price}</span>
-                    <span className="text-[11px] font-bold text-red-500 tracking-wide">{Math.round((1 - (product.price / Math.floor(product.price * 1.15))) * 100)}% OFF</span>
-                  </div>
-                  <div className="flex items-center gap-2 border-t border-zinc-100 pt-3 mt-1">
-                    <span 
-                      className="w-3.5 h-3.5 rounded-full ring-1 ring-offset-1 ring-zinc-300 shadow-sm" 
-                      style={{ backgroundColor: product.colors?.[0]?.toLowerCase().replace(" ", "") || 'gray' }}
-                    ></span>
-                    <span className="text-[10px] text-zinc-500 uppercase font-medium tracking-wider">{product.colors?.[0] || 'STANDARD'}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
+                <ProductCard key={product._id} product={product} />
+              ))}
             </div>
           </div>
         )}
@@ -235,8 +311,8 @@ export default function Home() {
 
       {/* Exclusive For Men Section */}
       <section className="w-full relative z-20 bg-white">
-        <div className="py-12 pb-6">
-          <h2 className="text-xl font-bold tracking-widest text-zinc-900 text-center uppercase">Exclusive For Men</h2>
+        <div className="py-16 border-y border-zinc-200">
+          <h2 className="text-4xl md:text-6xl font-bold tracking-widest text-zinc-900 text-center uppercase">Exclusive For Men</h2>
         </div>
         <div className="relative group/mens-carousel border-b border-t border-zinc-100">
           <div ref={mensScrollRef} className="flex overflow-x-auto snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden scroll-smooth pb-0">
@@ -259,8 +335,8 @@ export default function Home() {
 
       {/* Trending Categories Section */}
       <section className="max-w-[1600px] mx-auto px-6 lg:px-12 py-16 relative z-20">
-        <div className="mb-10">
-          <h2 className="text-xl font-bold tracking-widest text-zinc-900 text-center uppercase">Trending Categories</h2>
+        <div className="mb-16 border-y border-zinc-200 py-12">
+          <h2 className="text-4xl md:text-6xl font-bold tracking-widest text-zinc-900 text-center uppercase">Trending Categories</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* T-Shirts Category */}
@@ -295,8 +371,8 @@ export default function Home() {
 
       {/* Exclusive For Women Section */}
       <section className="w-full relative z-20 bg-white">
-        <div className="py-12 pb-6">
-          <h2 className="text-xl font-bold tracking-widest text-zinc-900 text-center uppercase">Exclusive For Women</h2>
+        <div className="py-16 border-y border-zinc-200">
+          <h2 className="text-4xl md:text-6xl font-bold tracking-widest text-zinc-900 text-center uppercase">Exclusive For Women</h2>
         </div>
         <div className="relative group/womens-carousel border-b border-t border-zinc-100">
           <div ref={womensScrollRef} className="flex overflow-x-auto snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden scroll-smooth pb-0">

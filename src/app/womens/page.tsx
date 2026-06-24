@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { Truck, Hand, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import WishlistButton from "@/Components/WishlistButton";
+import ProductCard from "@/Components/ProductCard";
 // Remove axios import
 
 const womensCategories = [
@@ -150,25 +151,32 @@ export default function WomensPage() {
       </div>
 
       {/* Shop By Category Heading */}
-      <div className="text-center mt-16 md:mt-20 mb-12">
-        <h2 className="text-2xl md:text-3xl font-extrabold text-[#183454] tracking-widest uppercase">SHOP BY CATEGORY</h2>
-        <div className="w-24 h-1 bg-[#183454] mx-auto mt-4 rounded-full"></div>
+      <div className="text-center mt-16 md:mt-24 mb-12">
+        <h2 className="text-3xl md:text-4xl font-serif tracking-wide text-zinc-900 mb-4">Explore Categories</h2>
+        <div className="w-16 h-[1px] bg-zinc-300 mx-auto"></div>
       </div>
 
       {/* Categories Grid */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-4 gap-y-10">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-12 mt-8">
+        <div className="flex flex-wrap justify-center gap-4 md:gap-8">
           {womensCategories.map((cat) => (
-            <Link href={`/category/${cat.path}`} key={cat.name} className="group cursor-pointer flex flex-col items-center">
-              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden mb-5 shadow-sm group-hover:shadow-lg transition-all duration-300">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={cat.image}
-                  alt={cat.name}
-                  className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-500 ease-out"
-                />
+            <Link href={`/category/${cat.path}`} key={cat.name} className="w-[calc(50%-0.5rem)] md:w-[calc(25%-1.5rem)] group cursor-pointer relative overflow-hidden bg-zinc-900 aspect-[4/5] shadow-lg rounded-2xl">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={cat.image}
+                alt={cat.name}
+                className="absolute inset-0 w-full h-full object-cover object-top opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-out"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-60 transition-opacity duration-500"></div>
+              
+              <div className="absolute bottom-0 left-0 p-4 md:p-8 w-full flex flex-col items-center justify-end text-center">
+                <span className="text-sm md:text-lg font-serif text-white tracking-[0.15em] uppercase group-hover:-translate-y-2 transition-transform duration-500 drop-shadow-md">
+                  {cat.name}
+                </span>
+                <span className="text-[10px] uppercase tracking-[0.2em] text-[#D4AF37] opacity-0 group-hover:opacity-100 group-hover:-translate-y-2 transition-all duration-500 delay-100 mt-2 font-bold">
+                  Explore
+                </span>
               </div>
-              <span className="text-sm md:text-base font-extrabold text-zinc-800 tracking-wider group-hover:text-black transition-colors text-center">{cat.name}</span>
             </Link>
           ))}
         </div>
@@ -204,42 +212,7 @@ export default function WomensPage() {
 
             <div ref={topsScrollRef} className="flex overflow-x-auto gap-6 pb-8 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden scroll-smooth">
               {products.filter(p => p.subcategory?.includes('Top') || p.category?.includes('Top')).slice(0, 8).map((product) => (
-                <div key={product._id} className="group relative flex-none w-[75vw] sm:w-[280px] lg:w-[320px] snap-start border border-transparent hover:border-zinc-200 transition-colors bg-white pb-4 rounded-sm">
-                  <div className="aspect-[2/3] w-full overflow-hidden bg-zinc-100 relative cursor-pointer mb-3 rounded-t-sm">
-                    <WishlistButton product={product} />
-                    <Link href={`/product/${product._id}`}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={product.images[0]}
-                        alt={product.name}
-                        className="h-full w-full object-cover object-top group-hover:scale-105 transition-transform duration-700 ease-out"
-                      />
-                    </Link>
-                  </div>
-                  <div className="px-2">
-                    <div className="text-[10px] text-zinc-400 font-medium mb-1 uppercase tracking-wider">
-                      {product.subcategory || product.category}
-                    </div>
-                    <h3 className="text-sm font-semibold text-zinc-900 mb-1 leading-snug truncate">
-                      <Link href={`/product/${product._id}`}>
-                        <span aria-hidden="true" className="absolute inset-0 z-0"></span>
-                        {product.name}
-                      </Link>
-                    </h3>
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="text-sm text-zinc-400 line-through">₹{Math.floor(product.price * 1.15)}</span>
-                      <span className="text-sm font-bold text-zinc-900">₹{product.price}</span>
-                      <span className="text-[11px] font-bold text-red-500 tracking-wide">{Math.round((1 - (product.price / Math.floor(product.price * 1.15))) * 100)}% OFF</span>
-                    </div>
-                    <div className="flex items-center gap-2 border-t border-zinc-100 pt-3 mt-1">
-                      <span 
-                        className="w-3.5 h-3.5 rounded-full ring-1 ring-offset-1 ring-zinc-300 shadow-sm" 
-                        style={{ backgroundColor: product.colors?.[0]?.toLowerCase().replace(" ", "") || 'gray' }}
-                      ></span>
-                      <span className="text-[10px] text-zinc-500 uppercase font-medium tracking-wider">{product.colors?.[0] || 'STANDARD'}</span>
-                    </div>
-                  </div>
-                </div>
+                <ProductCard key={product._id} product={product} />
               ))}
             </div>
           </div>

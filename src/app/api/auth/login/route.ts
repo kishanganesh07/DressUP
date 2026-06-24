@@ -28,6 +28,7 @@ export async function POST(req: Request) {
       const token = jwt.sign(
       {
         id: user._id,
+        isAdmin: user.isAdmin,
       },
       process.env.JWT_SECRET!,
       {
@@ -42,12 +43,12 @@ export async function POST(req: Request) {
     });
 
 
-    }catch(e){
-         return NextResponse.json({
-      success: false,
-      e,
-    });
-
+    } catch (e: any) {
+      console.error("Login Error:", e);
+      return NextResponse.json({
+        success: false,
+        message: e.message || "An error occurred during login",
+      });
     }
 
 }

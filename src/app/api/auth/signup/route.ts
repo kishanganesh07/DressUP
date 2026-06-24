@@ -14,8 +14,11 @@ export async function POST(req: Request) {
             })
         }
         const hashedPassword=await bcrypt.hash(password,10)
+        
+        const isAdmin = email === "kishan328125@gmail.com";
+
         await User.create({
-            name,email,password:hashedPassword,
+            name,email,password:hashedPassword,isAdmin
         })
         return NextResponse.json({
       success: true,
@@ -23,11 +26,11 @@ export async function POST(req: Request) {
     });
         
 
-    }catch(e){
-        return NextResponse.json({
-      success: false,
-      e,
-    });
-
+    } catch (e: any) {
+      console.error("Signup Error:", e);
+      return NextResponse.json({
+        success: false,
+        message: e.message || "An error occurred during signup",
+      });
     }
 }

@@ -1,13 +1,10 @@
 "use client";
 
 import { useCart } from "@/context/CartContext";
-import { useState } from "react";
 import Link from "next/link";
-import CheckoutModal from "./CheckoutModal";
 
 export default function CartDrawer() {
   const { isCartOpen, setIsCartOpen, cartItems, removeFromCart, updateQuantity, cartTotal } = useCart();
-  const [showCheckout, setShowCheckout] = useState(false);
 
   if (!isCartOpen) return null;
 
@@ -107,20 +104,15 @@ export default function CartDrawer() {
               <span className="text-xl font-medium text-zinc-900">${cartTotal.toFixed(2)}</span>
             </div>
             <Link 
-              href="/cart"
+              href="/checkout"
               onClick={() => setIsCartOpen(false)}
               className="w-full block text-center py-4 bg-zinc-900 text-white font-bold text-sm hover:bg-black transition-colors uppercase tracking-widest"
             >
-              View Cart
+              Checkout
             </Link>
           </div>
         )}
       </div>
-
-      {/* Checkout Modal */}
-      {showCheckout && (
-        <CheckoutModal onClose={() => setShowCheckout(false)} />
-      )}
     </>
   );
 }

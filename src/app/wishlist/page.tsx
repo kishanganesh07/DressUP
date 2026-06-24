@@ -3,11 +3,13 @@
 import React from 'react';
 import Link from 'next/link';
 import { useWishlist } from '@/context/WishlistContext';
+import ProtectedRoute from '@/Components/ProtectedRoute';
 
 export default function WishlistPage() {
   const { wishlistItems, toggleWishlist } = useWishlist();
 
   return (
+    <ProtectedRoute>
     <div className="min-h-screen bg-white pt-24 pb-20">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         <div className="border-b border-zinc-200 pb-8 mb-12 flex justify-between items-end">
@@ -70,5 +72,6 @@ export default function WishlistPage() {
         )}
       </div>
     </div>
+    </ProtectedRoute>
   );
 }

@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function ContactPage() {
   return (
-    <div className="min-h-screen bg-white pt-24 pb-20">
+    <div className="min-h-[60vh] bg-white pt-24 pb-12">
       {/* Header Section */}
       <section className="w-full bg-zinc-50 py-16 text-center border-b border-zinc-200">
         <h1 className="text-3xl md:text-5xl font-black text-zinc-900 tracking-[0.1em] uppercase mb-4">
@@ -118,6 +118,8 @@ export default function ContactPage() {
           
         </div>
       </section>
+
+
     </div>
   );
 }

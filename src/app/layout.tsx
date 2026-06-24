@@ -1,24 +1,24 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import Navbar from "@/Components/Navbar";
-import Footer from "@/Components/Footer";
+import { Inter, Playfair_Display } from "next/font/google";
+import LayoutWrapper from "@/Components/LayoutWrapper";
 import { CartProvider } from "@/context/CartContext";
 import { WishlistProvider } from "@/context/WishlistContext";
 import { Toaster } from "react-hot-toast";
+import NextTopLoader from 'nextjs-toploader';
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "ANTIGRAVITY | Future of Fashion",
+  title: "Dress UP! | Future of Fashion",
   description: "Premium clothing brand built for the future.",
 };
 
@@ -30,15 +30,25 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${playfair.variable} h-full antialiased`}
     >
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-zinc-900 min-h-screen relative overflow-x-hidden`}
+        className={`${inter.variable} ${playfair.variable} font-sans antialiased bg-[#fdfcfb] text-zinc-900 min-h-screen relative overflow-x-hidden`}
       >
-
+        <NextTopLoader 
+          color="#171717"
+          initialPosition={0.08}
+          crawlSpeed={200}
+          height={3}
+          crawl={true}
+          showSpinner={false}
+          easing="ease"
+          speed={200}
+          shadow="0 0 10px #171717,0 0 5px #171717"
+        />
         <WishlistProvider>
           <CartProvider>
-            <div className="flex flex-col min-h-screen">
+            <LayoutWrapper>
               <Toaster 
                 position="top-center" 
                 toastOptions={{
@@ -62,10 +72,8 @@ export default function RootLayout({
                   },
                 }}
               />
-              <Navbar />
-              <main className="flex-grow">{children}</main>
-              <Footer />
-            </div>
+              {children}
+            </LayoutWrapper>
           </CartProvider>
         </WishlistProvider>
       </body>

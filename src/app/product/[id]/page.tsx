@@ -7,6 +7,7 @@ import { useCart } from "@/context/CartContext";
 import { MOCK_PRODUCTS } from "@/lib/mockData";
 import Link from "next/link";
 import WishlistButton from "@/Components/WishlistButton";
+import ProductCard from "@/Components/ProductCard";
 
 export default function ProductDetail() {
   const params = useParams();
@@ -23,6 +24,7 @@ export default function ProductDetail() {
   const [error, setError] = useState("");
   const [isZoomed, setIsZoomed] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 50, y: 50 });
+  const [isDetailsOpen, setIsDetailsOpen] = useState(true);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
@@ -103,7 +105,7 @@ export default function ProductDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-zinc-900 pt-32 pb-16">
+    <div className="min-h-screen bg-[#fdfcfb] text-zinc-900 pt-32 pb-16">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         <div className="lg:grid lg:grid-cols-2 lg:gap-x-16 xl:gap-x-24">
           
@@ -111,7 +113,7 @@ export default function ProductDetail() {
           <div className="flex flex-col gap-4">
             {/* Main Image */}
             <div 
-              className="w-full aspect-[3/4] bg-zinc-100 overflow-hidden relative cursor-zoom-in group"
+              className="w-full aspect-[3/4] bg-[#fdfcfb] overflow-hidden relative cursor-zoom-in group shadow-sm rounded-xl border border-zinc-100"
               onMouseEnter={() => setIsZoomed(true)}
               onMouseLeave={() => setIsZoomed(false)}
               onMouseMove={handleMouseMove}
@@ -135,8 +137,8 @@ export default function ProductDetail() {
                   <button
                     key={idx}
                     onClick={() => setActiveImage(idx)}
-                    className={`relative aspect-[3/4] overflow-hidden bg-zinc-100 transition-all ${
-                      activeImage === idx ? 'ring-2 ring-zinc-900 ring-offset-2' : 'opacity-70 hover:opacity-100'
+                    className={`relative aspect-[3/4] overflow-hidden bg-[#fdfcfb] transition-all rounded-lg cursor-pointer ${
+                      activeImage === idx ? 'ring-1 ring-zinc-400 ring-offset-2' : 'opacity-70 hover:opacity-100'
                     }`}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -153,10 +155,10 @@ export default function ProductDetail() {
 
           {/* Product Info */}
           <div className="mt-12 px-4 sm:px-0 lg:mt-8 flex flex-col justify-center">
-            <h2 className="text-xs font-semibold text-zinc-500 tracking-widest uppercase mb-4">
+            <h2 className="text-[11px] font-semibold text-zinc-500 tracking-[0.2em] uppercase mb-4">
               {product.category}
             </h2>
-            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-zinc-900 mb-6 leading-tight">
+            <h1 className="text-4xl sm:text-5xl font-serif tracking-wide text-zinc-900 mb-6 leading-tight">
               {product.name}
             </h1>
             
@@ -166,10 +168,9 @@ export default function ProductDetail() {
               </p>
             </div>
 
-            <div className="mt-8">
-              <h3 className="sr-only">Description</h3>
-              <p className="text-base text-zinc-600 leading-relaxed font-light">
-                {product.description || "No description available for this product."}
+            <div className="mt-4">
+              <p className="text-base text-zinc-500 font-light tracking-wide">
+                Premium quality {product.subcategory || product.category} by {product.brand || "our brand"}.
               </p>
             </div>
 
@@ -183,7 +184,7 @@ export default function ProductDetail() {
                       <button
                         key={color}
                         onClick={() => setSelectedColor(color)}
-                        className={`relative w-8 h-8 rounded-full border flex items-center justify-center transition-all ${
+                        className={`relative w-8 h-8 rounded-full border flex items-center justify-center transition-all cursor-pointer ${
                           selectedColor === color 
                             ? 'border-zinc-900 ring-2 ring-offset-2 ring-zinc-900' 
                             : 'border-zinc-300 hover:border-zinc-400'
@@ -215,7 +216,7 @@ export default function ProductDetail() {
                       <button
                         key={size}
                         onClick={() => setSelectedSize(size)}
-                        className={`flex items-center justify-center px-3 py-3 border text-sm transition-all duration-300 ${
+                        className={`flex items-center justify-center px-3 py-3 border text-sm transition-all duration-300 cursor-pointer ${
                           selectedSize === size
                             ? 'border-zinc-900 bg-zinc-900 text-white font-medium'
                             : 'border-zinc-200 bg-white text-zinc-600 hover:border-zinc-900 hover:text-zinc-900'
@@ -235,7 +236,7 @@ export default function ProductDetail() {
               <div className="mt-8 flex gap-4">
                 <button
                   onClick={handleAddToCart}
-                  className="flex-1 bg-zinc-900 border border-transparent py-4 px-8 flex items-center justify-center text-sm font-medium text-white hover:bg-black transition-colors duration-300 focus:outline-none uppercase tracking-widest"
+                  className="flex-1 bg-zinc-900 border border-transparent py-4 px-8 flex items-center justify-center text-[11px] font-bold tracking-[0.15em] text-white hover:bg-black transition-all duration-500 shadow-xl hover:shadow-2xl hover:-translate-y-0.5 focus:outline-none uppercase rounded-sm"
                 >
                   Add to Cart
                 </button>
@@ -263,6 +264,76 @@ export default function ProductDetail() {
                   <span className="mt-1">Within 30 days</span>
                 </div>
               </div>
+
+              {/* Product Description & Details */}
+              <div className="mt-12 border-t border-zinc-200 pt-10">
+                <div className="mb-8">
+                  <h3 className="text-sm font-bold text-zinc-900 tracking-wider uppercase mb-4">Product Description</h3>
+                  <p className="text-sm text-zinc-600 leading-relaxed font-normal">
+                    {product.description || "Drenched in sophistication, this piece is an impeccable choice for any occasion. Made from premium materials, it ensures all-day comfort while enhancing your presence at every event. Elevate your aesthetic with this striking piece that embodies modern elegance."}
+                  </p>
+                </div>
+
+                <div className="border-t border-zinc-200 pt-6">
+                  <div 
+                    className="flex justify-between items-center cursor-pointer mb-6"
+                    onClick={() => setIsDetailsOpen(!isDetailsOpen)}
+                  >
+                    <h3 className="text-sm font-bold text-zinc-900 tracking-wider uppercase">Product Details</h3>
+                    <svg 
+                      className={`w-5 h-5 text-zinc-500 transition-transform duration-300 ${isDetailsOpen ? 'rotate-180' : ''}`} 
+                      fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                  
+                  {isDetailsOpen && (
+                    <div className="grid grid-cols-2 gap-y-6 gap-x-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                      <div>
+                        <p className="text-xs text-zinc-500 mb-1">Material:</p>
+                        <p className="text-sm font-semibold text-zinc-900">{product.material || "100% Premium Cotton"}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-zinc-500 mb-1">Fit:</p>
+                        <p className="text-sm font-semibold text-zinc-900">{product.fit || "Slim Fit"}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-zinc-500 mb-1">StyleCode:</p>
+                        <p className="text-sm font-semibold text-zinc-900">{product._id || "STY-123456"}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-zinc-500 mb-1">Brand:</p>
+                        <p className="text-sm font-semibold text-zinc-900">{product.brand || "Exclusive Collection"}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-zinc-500 mb-1">Collar:</p>
+                        <p className="text-sm font-semibold text-zinc-900">{product.subcategory?.includes('Polo') ? 'Polo Collar' : 'Regular Collar'}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-zinc-500 mb-1">Color:</p>
+                        <p className="text-sm font-semibold text-zinc-900">{product.colors?.[0] || "Standard"}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-zinc-500 mb-1">Occasion:</p>
+                        <p className="text-sm font-semibold text-zinc-900">{product.subcategory?.includes('Formal') ? 'Formal' : 'Casual'}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-zinc-500 mb-1">Pattern:</p>
+                        <p className="text-sm font-semibold text-zinc-900">{product.name?.toLowerCase().includes('solid') ? 'Solid' : product.name?.toLowerCase().includes('print') ? 'Printed' : 'Textured'}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-zinc-500 mb-1">Sleeves:</p>
+                        <p className="text-sm font-semibold text-zinc-900">{product.subcategory?.includes('T-Shirt') ? 'Short Sleeves' : 'Full Sleeves'}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-zinc-500 mb-1">ProductType:</p>
+                        <p className="text-sm font-semibold text-zinc-900">{product.subcategory || product.category || 'Apparel'}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -270,8 +341,8 @@ export default function ProductDetail() {
 
       {/* Similar Products */}
       {product && (
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 mt-24 border-t border-zinc-200 pt-16">
-          <h2 className="text-2xl font-bold tracking-widest text-zinc-900 uppercase mb-10 text-center">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 mt-24 border-t border-zinc-200/50 pt-16">
+          <h2 className="text-2xl md:text-3xl font-serif tracking-wide text-zinc-900 mb-10 text-center">
             You May Also Like
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -279,22 +350,7 @@ export default function ProductDetail() {
               .filter(p => p.category === product.category && p._id !== product._id)
               .slice(0, 4)
               .map(similar => (
-                <div key={similar._id} className="group cursor-pointer">
-                  <Link href={`/product/${similar._id}`}>
-                    <div className="aspect-[3/4] bg-zinc-100 overflow-hidden mb-4">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img 
-                        src={similar.images[0]} 
-                        alt={similar.name}
-                        className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
-                      />
-                    </div>
-                    <div className="text-center">
-                      <h3 className="text-sm font-semibold text-zinc-900 mb-1 truncate px-2">{similar.name}</h3>
-                      <p className="text-sm text-zinc-500">₹{similar.price}</p>
-                    </div>
-                  </Link>
-                </div>
+                <ProductCard key={similar._id} product={similar} />
               ))
             }
           </div>

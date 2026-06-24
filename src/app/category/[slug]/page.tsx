@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Filter, ChevronDown, Check } from "lucide-react";
 import WishlistButton from "@/Components/WishlistButton";
 import Link from "next/link";
-// Remove axios import
+import ProductCard from "@/Components/ProductCard";
 import { use } from "react";
 
 export default function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -20,22 +20,48 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
     const timer = setTimeout(async () => {
       setLoading(true);
       try {
-        const isMen = slug.includes("mens") || slug.includes("men");
+        const isMen = slug.startsWith("mens") || slug.startsWith("men");
         const categoryParam = isMen ? "Men" : "Women";
         
         const res = await fetch(`/api/products?category=${categoryParam}`);
         const data = await res.json();
         if (data.success) {
-          // Format slug for filtering
-          const searchStr = slug.replace("mens-", "").replace("womens-", "").replace(/-/g, " ");
-          const keywords = searchStr.split(' ').filter(k => k.length > 2);
-          
-          let filtered = data.data.filter((p: any) => {
-            const textToSearch = `${p.subcategory || ''} ${p.name || ''} ${p.category || ''}`.toLowerCase();
-            // If no keywords (e.g. just "mens"), return all. Otherwise check if any keyword matches.
-            if (keywords.length === 0) return true;
-            return keywords.some(kw => textToSearch.includes(kw));
-          });
+          // Precise slug to subcategory mapping
+          const slugToSubcategories: Record<string, string[]> = {
+            "mens-polo-t-shirts": ["Polo T-Shirts", "Polo Collar T-Shirts"],
+            "mens-round-neck-t-shirts": ["Round Neck T-Shirts", "Round Neck and V Neck T-Shirts"],
+            "mens-casual-shirts": ["Casual Shirts"],
+            "mens-formal-shirts": ["Formal Shirts"],
+            "mens-casual-trousers": ["Casual Trousers"],
+            "mens-formal-trousers": ["Formal Trousers"],
+            "mens-cargos": ["Cargos"],
+            "mens-jeans": ["Jeans"],
+            "mens-t-shirts": ["Polo T-Shirts", "Polo Collar T-Shirts", "Round Neck T-Shirts", "Round Neck and V Neck T-Shirts"],
+            "womens-dresses": ["Dresses", "Dress"],
+            "womens-tops": ["Tops"],
+            "womens-jeans": ["Jeans", "Regular Fit Jeans", "Skinny Fit Jeans"],
+            "womens-formal-shirts": ["Formal Shirts"],
+            "womens-formal-trousers": ["Formal Trousers", "Formal Trouser"],
+            "womens-trousers": ["Formal Trousers", "Formal Trouser", "Casual Trousers", "Casual Trouser", "Trousers", "Trouser"],
+          };
+
+          let filtered = [];
+          if (slugToSubcategories[slug]) {
+            const targetSubcategories = slugToSubcategories[slug];
+            filtered = data.data.filter((p: any) => 
+              p.subcategory && targetSubcategories.includes(p.subcategory)
+            );
+          } else {
+            // Fallback for unmapped slugs
+            const searchStr = slug.replace("mens-", "").replace("womens-", "").replace(/-/g, " ");
+            const keywords = searchStr.split(' ');
+            
+            filtered = data.data.filter((p: any) => {
+              const textToSearch = `${p.subcategory || ''} ${p.name || ''} ${p.category || ''}`.toLowerCase();
+              if (keywords.length === 0) return true;
+              return keywords.every(kw => textToSearch.includes(kw));
+            });
+          }
           
           if (selectedSize !== "all") {
             filtered = filtered.filter((p: any) => p.sizes && p.sizes.includes(selectedSize));
@@ -90,13 +116,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
         {/* Updated Top Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-8 pb-4 border-b border-zinc-200 gap-4">
-          <div>
-            <p className="text-sm text-zinc-600 cursor-pointer hover:underline underline-offset-4 decoration-zinc-300">
-              <span className="font-bold text-black underline">Add delivery location</span><br/>
-              to see express delivery options
-            </p>
-          </div>
+        <div className="flex justify-end mb-8 pb-4 border-b border-zinc-200">
           <span className="text-sm font-medium text-zinc-600">{products.length} items found</span>
         </div>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
@@ -105,6 +125,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
             {["all", "S", "M", "L", "XL", "XXL"].map((size) => (
               <button
                 key={size}
+                
                 onClick={() => setSelectedSize(size)}
                 className={`px-4 py-2 text-xs font-bold uppercase tracking-widest transition-all duration-300 rounded-full border ${
                   selectedSize === size 
@@ -150,71 +171,12 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 md:gap-x-8 gap-y-12">
+            {/* Products Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
               {currentProducts.map((product) => (
-              <div key={product._id} className="group relative flex flex-col bg-white hover:shadow-xl transition-all duration-500 border border-transparent hover:border-zinc-200 p-2">
-                <div className="aspect-[2/3] w-full overflow-hidden bg-zinc-100 relative cursor-pointer mb-3">
-                  
-                  {/* JUST IN tag */}
-                  {product._id.charCodeAt(0) % 3 === 0 && (
-                    <div className="absolute top-2 left-2 bg-[#4285F4] text-white text-[10px] font-bold px-2 py-0.5 z-10 uppercase tracking-widest rounded-sm">
-                      JUST IN
-                    </div>
-                  )}
-                  
-                  {/* Heart Icon */}
-                  <WishlistButton product={product} />
-
-                  {/* Size Selector on Hover */}
-                  <div className="absolute inset-x-0 bottom-0 bg-white/95 backdrop-blur-sm py-2 px-4 opacity-0 group-hover:opacity-100 transition-all duration-300 z-20 flex justify-center gap-3 border-t border-zinc-100">
-                    {["S", "M", "L", "XL", "XXL"].map(size => (
-                      <span key={size} className={`text-xs font-bold cursor-pointer hover:text-black ${((product._id.charCodeAt(0) + size.charCodeAt(0)) % 5 === 0) ? 'text-zinc-300 line-through' : 'text-zinc-600'}`}>{size}</span>
-                    ))}
-                  </div>
-
-                  <Link href={`/product/${product._id}`} className="block w-full h-full">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={product.images[0]}
-                      alt={product.name}
-                      className="h-full w-full object-cover object-top group-hover:scale-105 transition-transform duration-700 ease-in-out"
-                    />
-                  </Link>
-                </div>
-                
-                <div className="px-1 pb-2 flex flex-col flex-grow">
-                  <div className="flex justify-between items-center mb-1">
-                    <div className="text-[11px] text-zinc-400 font-medium tracking-wide">
-                      {product.subcategory || product.category}
-                    </div>
-                    <button className="text-zinc-400 hover:text-black transition-colors">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
-                    </button>
-                  </div>
-                  
-                  <h3 className="text-sm font-semibold text-zinc-800 mb-1 leading-snug truncate group-hover:text-black transition-colors">
-                    <Link href={`/product/${product._id}`}>
-                      {product.name}
-                    </Link>
-                  </h3>
-                  
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="text-sm text-zinc-400 line-through">₹{Math.floor(product.price * 1.15)}</span>
-                    <span className="text-sm font-bold text-zinc-900">₹{product.price}</span>
-                    <span className="text-[11px] font-bold text-red-500 tracking-wide">{Math.round((1 - (product.price / Math.floor(product.price * 1.15))) * 100)}% OFF</span>
-                  </div>
-                  
-                  <div className="mt-auto flex items-center gap-2 pt-2 border-t border-zinc-50">
-                    <span 
-                      className="w-3.5 h-3.5 rounded-full ring-1 ring-offset-1 ring-zinc-200 shadow-sm" 
-                      style={{ backgroundColor: product.colors?.[0]?.toLowerCase().replace(" ", "") || 'gray' }}
-                    ></span>
-                    <span className="text-[11px] text-zinc-500 capitalize tracking-wide">{product.colors?.[0] || 'Standard'}</span>
-                  </div>
-                  </div>
-                </div>
-            ))}
-          </div>
+                <ProductCard key={product._id} product={product} />
+              ))}
+            </div>
 
             {/* Pagination Controls */}
             {totalPages > 1 && (
