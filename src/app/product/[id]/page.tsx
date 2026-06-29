@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 // Remove axios import
 import { useCart } from "@/context/CartContext";
-import { MOCK_PRODUCTS } from "@/lib/mockData";
 import Link from "next/link";
 import WishlistButton from "@/Components/WishlistButton";
 import ProductCard from "@/Components/ProductCard";
@@ -16,6 +15,7 @@ export default function ProductDetail() {
   
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [product, setProduct] = useState<any>(null);
+  const [similarProducts, setSimilarProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
   const [selectedSize, setSelectedSize] = useState("");
@@ -42,22 +42,24 @@ export default function ProductDetail() {
           setProduct(data.data);
           if (data.data.sizes?.length) setSelectedSize(data.data.sizes[0]);
           if (data.data.colors?.length) setSelectedColor(data.data.colors[0]);
-        } else {
-          fallbackToMock();
+
+          // Fetch similar products based on the category
+          if (data.data.category) {
+            try {
+              const similarRes = await fetch(`/api/products?category=${encodeURIComponent(data.data.category)}`);
+              const similarData = await similarRes.json();
+              if (similarData.success) {
+                 setSimilarProducts(similarData.data.filter((p: any) => p._id !== id).slice(0, 4));
+              }
+            } catch (err) {
+              console.error("Failed to fetch similar products", err);
+            }
+          }
         }
-      } catch {
-        fallbackToMock();
+      } catch (error) {
+        console.error("Failed to fetch product", error);
       } finally {
         setLoading(false);
-      }
-    };
-
-    const fallbackToMock = () => {
-      const mockProduct = MOCK_PRODUCTS.find((p) => p._id === id);
-      if (mockProduct) {
-        setProduct(mockProduct);
-        if (mockProduct.sizes?.length) setSelectedSize(mockProduct.sizes[0]);
-        if (mockProduct.colors?.length) setSelectedColor(mockProduct.colors[0]);
       }
     };
 
@@ -346,13 +348,13 @@ export default function ProductDetail() {
             You May Also Like
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {MOCK_PRODUCTS
-              .filter(p => p.category === product.category && p._id !== product._id)
-              .slice(0, 4)
-              .map(similar => (
+            {similarProducts.length > 0 ? (
+              similarProducts.map(similar => (
                 <ProductCard key={similar._id} product={similar} />
               ))
-            }
+            ) : (
+              <p className="col-span-full text-center text-zinc-500 py-10">No similar products found.</p>
+            )}
           </div>
         </div>
       )}

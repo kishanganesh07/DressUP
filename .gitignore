@@ -40,8 +40,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# public folder
-public/
+
+
+lib
+seed_data/
+
 
 # Editor directories and files
 .vscode/*
