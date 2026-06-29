@@ -24,7 +24,8 @@
     "razorpay": "^2.9.6",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "react-hot-toast": "^2.6.0"
+    "react-hot-toast": "^2.6.0",
+    "react-inner-image-zoom": "^4.0.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

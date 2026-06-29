@@ -141,11 +141,11 @@ export default function Home() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.8, delay: 0.2 }}
-                  className="text-4xl md:text-7xl italic font-serif font-light text-[#D4AF37] mb-2 md:mb-4 ml-0 md:ml-2 z-10 relative"
+                  className="text-2xl md:text-7xl italic font-serif font-light text-[#D4AF37] mb-2 md:mb-4 ml-0 md:ml-2 z-10 relative"
                 >
                   The
                 </motion.span>
-                <span className="text-5xl sm:text-6xl md:text-[8rem] font-serif font-bold tracking-tighter leading-[0.9] md:leading-[0.85] text-white uppercase relative z-0">
+                <span className="text-2xl sm:text-6xl md:text-[8rem] font-serif font-bold tracking-tighter leading-[0.9] md:leading-[0.85] text-white uppercase relative z-0">
                   New<br/>Collection
                 </span>
               </h1>

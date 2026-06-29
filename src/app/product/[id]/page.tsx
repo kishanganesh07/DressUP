@@ -7,6 +7,8 @@ import { useCart } from "@/context/CartContext";
 import Link from "next/link";
 import WishlistButton from "@/Components/WishlistButton";
 import ProductCard from "@/Components/ProductCard";
+import InnerImageZoom from 'react-inner-image-zoom';
+import 'react-inner-image-zoom/lib/styles.min.css';
 
 export default function ProductDetail() {
   const params = useParams();
@@ -22,17 +24,7 @@ export default function ProductDetail() {
   const [selectedColor, setSelectedColor] = useState("");
   const [activeImage, setActiveImage] = useState(0);
   const [error, setError] = useState("");
-  const [isZoomed, setIsZoomed] = useState(false);
-  const [mousePosition, setMousePosition] = useState({ x: 50, y: 50 });
   const [isDetailsOpen, setIsDetailsOpen] = useState(true);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - left) / width) * 100;
-    const y = ((e.clientY - top) / height) * 100;
-    setMousePosition({ x, y });
-  };
-
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -114,22 +106,24 @@ export default function ProductDetail() {
           {/* Image Gallery */}
           <div className="flex flex-col gap-4">
             {/* Main Image */}
-            <div 
-              className="w-full aspect-[3/4] bg-[#fdfcfb] overflow-hidden relative cursor-zoom-in group shadow-sm rounded-xl border border-zinc-100"
-              onMouseEnter={() => setIsZoomed(true)}
-              onMouseLeave={() => setIsZoomed(false)}
-              onMouseMove={handleMouseMove}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img 
-                src={product.images && product.images.length > 0 ? product.images[activeImage] : ""} 
-                alt={product.name} 
-                className={`w-full h-full object-cover object-center transition-transform ${isZoomed ? 'duration-0' : 'duration-700 ease-in-out'}`}
-                style={{
-                  transformOrigin: `${mousePosition.x}% ${mousePosition.y}%`,
-                  transform: isZoomed ? 'scale(2.5)' : 'scale(1)'
-                }}
-              />
+            <div className="w-full aspect-[3/4] bg-[#fdfcfb] relative shadow-sm rounded-xl border border-zinc-100">
+              <style jsx global>{`
+                .iiz { width: 100%; height: 100%; margin: 0; border-radius: 0.75rem; overflow: hidden; }
+                .iiz__img { width: 100% !important; height: 100% !important; object-fit: cover; }
+              `}</style>
+              {product.images && product.images.length > 0 ? (
+                <InnerImageZoom
+                  src={product.images[activeImage]}
+                  zoomSrc={product.images[activeImage]}
+                  alt={product.name}
+                  zoomType="hover"
+                  zoomScale={1.5}
+                  hideHint={true}
+                  className="w-full h-full"
+                />
+              ) : (
+                <div className="w-full h-full bg-zinc-100 rounded-xl"></div>
+              )}
             </div>
             
             {/* Thumbnails */}
