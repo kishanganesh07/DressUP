@@ -115,7 +115,7 @@ export default function ProductDetail() {
                 <InnerImageZoom
                   src={product.images[activeImage]}
                   zoomSrc={product.images[activeImage]}
-                  alt={product.name}
+                  imgAttributes={{ alt: product.name }}
                   zoomType="hover"
                   zoomScale={1.5}
                   hideHint={true}
