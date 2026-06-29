@@ -7,13 +7,17 @@ import toast from "react-hot-toast";
 import { motion } from "framer-motion";
 
 export default function ProductCard({ product }: { product: any }) {
-  const { addToCart } = useCart();
+  const { cartItems, addToCart, updateQuantity, removeFromCart } = useCart();
   
   // Simulated discount and rating for the UI
   const discountPercent = 32;
   const originalPrice = product.price / (1 - discountPercent / 100); 
   const rating = 5;
   const reviews = Math.floor(product.price % 200) + 50; // just deterministic randomish
+
+  const cartItemId = `${product._id}-${product.sizes?.[0] || "default"}-${product.colors?.[0] || "default"}`;
+  const cartItem = cartItems.find(i => i.cartItemId === cartItemId);
+  const count = cartItem ? cartItem.quantity : 0;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -25,7 +29,6 @@ export default function ProductCard({ product }: { product: any }) {
       size: product.sizes?.[0] || "",
       color: product.colors?.[0] || ""
     });
-    toast.success(`${product.name} added to cart`);
   };
 
   const handleQuickView = (e: React.MouseEvent) => {
@@ -71,12 +74,37 @@ export default function ProductCard({ product }: { product: any }) {
 
         {/* Hover Action Overlay */}
         <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out bg-gradient-to-t from-black/50 to-transparent flex gap-2">
-          <button 
-            onClick={handleAddToCart}
-            className="flex-1 bg-white text-black text-[11px] font-bold py-3 uppercase tracking-wider hover:bg-black hover:text-white transition-colors"
-          >
-            Add to Cart
-          </button>
+          {count === 0 ? (
+            <button 
+              onClick={handleAddToCart}
+              className="flex-1 bg-white text-black text-[11px] font-bold py-3 uppercase tracking-wider hover:bg-black hover:text-white transition-colors"
+            >
+              Add to Cart
+            </button>
+          ) : (
+            <div className="flex-1 bg-white text-black text-[11px] font-bold py-0 flex items-center justify-between uppercase tracking-wider">
+              <button 
+                onClick={(e) => { 
+                  e.preventDefault(); 
+                  if (count > 1) updateQuantity(cartItemId, count - 1); 
+                  else removeFromCart(cartItemId); 
+                }}
+                className="w-8 h-full flex items-center justify-center hover:bg-black hover:text-white transition-colors"
+              >
+                -
+              </button>
+              <span className="flex-1 text-center py-3">{count}</span>
+              <button 
+                onClick={(e) => { 
+                  e.preventDefault(); 
+                  updateQuantity(cartItemId, count + 1); 
+                }}
+                className="w-8 h-full flex items-center justify-center hover:bg-black hover:text-white transition-colors"
+              >
+                +
+              </button>
+            </div>
+          )}
           <button 
             onClick={handleQuickView}
             className="flex-1 bg-black/80 backdrop-blur-md text-white text-[11px] font-bold py-3 uppercase tracking-wider hover:bg-[#D4AF37] transition-colors"

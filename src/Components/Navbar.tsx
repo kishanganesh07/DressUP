@@ -16,7 +16,16 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
-  const { cartCount, toggleCart } = useCart();
+  const { cartCount, toggleCart, clearCart } = useCart();
+
+  const handleCartClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!user) {
+      setShowAuthModal(true);
+    } else {
+      router.push("/cart");
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -48,6 +57,7 @@ export default function Navbar() {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setUser(null);
+    clearCart();
     toast.success("Successfully signed out");
     router.push("/");
   };
@@ -92,9 +102,9 @@ export default function Navbar() {
 
           {/* Mobile Menu Button & Cart (Mobile) */}
           <div className="flex md:hidden items-center gap-4">
-            <Link 
-              href="/cart"
-              className="relative p-2 text-zinc-600 hover:text-zinc-900 transition-all"
+            <button 
+              onClick={handleCartClick}
+              className="relative p-2 text-zinc-600 hover:text-zinc-900 transition-all focus:outline-none"
             >
               <svg className="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -104,7 +114,7 @@ export default function Navbar() {
                   {cartCount}
                 </span>
               )}
-            </Link>
+            </button>
             <button 
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="p-2 text-zinc-600 hover:text-zinc-900 focus:outline-none transition-colors"
@@ -119,9 +129,9 @@ export default function Navbar() {
 
           {/* Auth Section & Cart */}
           <div className="hidden md:flex items-center gap-6">
-            <Link 
-              href="/cart"
-              className="relative p-2 text-zinc-600 hover:text-zinc-900 transition-all hover:scale-110 duration-300"
+            <button 
+              onClick={handleCartClick}
+              className="relative p-2 text-zinc-600 hover:text-zinc-900 transition-all hover:scale-110 duration-300 focus:outline-none"
             >
               <svg className="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -131,7 +141,7 @@ export default function Navbar() {
                   {cartCount}
                 </span>
               )}
-            </Link>
+            </button>
 
             {user ? (
               <div className="relative pl-6 border-l border-zinc-200 group">

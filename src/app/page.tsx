@@ -129,22 +129,23 @@ export default function Home() {
         <div className="relative z-10 w-full px-4 max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between h-full pt-10">
           
           {/* Main Hero Text */}
-          <div className="flex flex-col items-center md:items-start text-center md:text-left md:max-w-2xl">
+          <div className="flex flex-col items-center md:items-start text-center md:text-left md:max-w-2xl w-full">
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
+              className="w-full flex flex-col items-center md:items-start"
             >
-              <h1 className="flex flex-col text-left mb-8 drop-shadow-2xl relative">
+              <h1 className="flex flex-col text-center md:text-left mb-8 drop-shadow-2xl relative w-full">
                 <motion.span 
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.8, delay: 0.2 }}
-                  className="text-6xl md:text-7xl italic font-serif font-light text-[#D4AF37] mb-14 md:mb-4 ml-2 z-10 relative"
+                  className="text-4xl md:text-7xl italic font-serif font-light text-[#D4AF37] mb-2 md:mb-4 ml-0 md:ml-2 z-10 relative"
                 >
                   The
                 </motion.span>
-                <span className="text-7xl md:text-[8rem] font-serif font-bold tracking-tighter leading-[0.85] text-white uppercase relative z-0">
+                <span className="text-5xl sm:text-6xl md:text-[8rem] font-serif font-bold tracking-tighter leading-[0.9] md:leading-[0.85] text-white uppercase relative z-0">
                   New<br/>Collection
                 </span>
               </h1>
@@ -152,12 +153,12 @@ export default function Home() {
                 initial={{ width: 0 }}
                 animate={{ width: "4rem" }}
                 transition={{ duration: 1, delay: 0.6 }}
-                className="h-[2px] bg-[#D4AF37] mb-8 ml-2"
+                className="h-[2px] bg-[#D4AF37] mb-8 ml-0 md:ml-2"
               ></motion.div>
-              <p className="text-xs md:text-sm text-zinc-200 mb-10 max-w-md font-sans font-medium tracking-[0.25em] uppercase drop-shadow-md ml-2 leading-relaxed opacity-90">
+              <p className="text-[10px] md:text-sm text-zinc-200 mb-10 max-w-sm md:max-w-md font-sans font-medium tracking-[0.15em] md:tracking-[0.25em] uppercase drop-shadow-md ml-0 md:ml-2 leading-relaxed opacity-90 px-4 md:px-0">
                 Discover premium fashion crafted for modern lifestyles. Elevated essentials, timeless aesthetics.
               </p>
-              <div className="flex flex-col sm:flex-row items-center gap-4">
+              <div className="flex flex-col sm:flex-row items-center gap-4 w-full px-4 md:px-0 md:w-auto">
                 <Link href="/mens" className="w-full sm:w-auto text-center px-10 py-4 text-[11px] font-bold tracking-[0.2em] uppercase text-zinc-900 bg-white hover:bg-[#D4AF37] hover:text-white transition-colors duration-500 shadow-xl">
                   Shop Men
                 </Link>
@@ -324,9 +325,9 @@ export default function Home() {
               "https://i.pinimg.com/736x/6c/03/35/6c03354a8988d0ec3c2a54e3c2a9efff.jpg",
               "https://i.pinimg.com/1200x/04/2c/07/042c07d8d737cd0485b6d841ff0ea72d.jpg"
             ].map((src, i) => (
-              <div key={i} className="flex-none w-screen h-[50vh] md:h-[75vh] snap-start relative overflow-hidden bg-zinc-50">
+              <div key={i} className="flex-none w-full snap-start relative overflow-hidden bg-white flex items-center justify-center">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={src} alt={`Mens Exclusive Poster ${i+1}`} className="w-full h-full object-cover object-center" />
+                <img src={src} alt={`Mens Exclusive Poster ${i+1}`} className="w-full h-auto object-contain object-center" />
               </div>
             ))}
           </div>
@@ -383,9 +384,9 @@ export default function Home() {
               "https://res.cloudinary.com/dvbmbe4cl/image/upload/v1782141641/b25c086e5852e583eb1ffe344b5708c2_ymwoxo.jpg",
               "https://i.pinimg.com/1200x/08/08/e1/0808e1fb7ee460268f8e885c1af1fbba.jpg"
             ].map((src, i) => (
-              <div key={i} className="flex-none w-screen h-[50vh] md:h-[75vh] snap-start relative overflow-hidden bg-zinc-50">
+              <div key={i} className="flex-none w-full snap-start relative overflow-hidden bg-white flex items-center justify-center">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={src} alt={`Womens Exclusive Poster ${i+1}`} className="w-full h-full object-cover object-center" />
+                <img src={src} alt={`Womens Exclusive Poster ${i+1}`} className="w-full h-auto object-contain object-center" />
               </div>
             ))}
           </div>

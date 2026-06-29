@@ -24,20 +24,7 @@ export default function Footer() {
               <Link href="#" className="text-[11px] font-bold tracking-[0.2em] text-zinc-400 hover:text-white transition-colors">FB</Link>
               <Link href="#" className="text-[11px] font-bold tracking-[0.2em] text-zinc-400 hover:text-white transition-colors">X</Link>
             </div>
-            <form className="flex mt-4" onSubmit={(e) => e.preventDefault()}>
-              <input 
-                type="email" 
-                placeholder="Email Address" 
-                className="bg-transparent border-b border-zinc-700 text-white placeholder-zinc-500 text-sm py-2 px-0 w-full focus:outline-none focus:border-white transition-colors"
-                required
-              />
-              <button 
-                type="submit" 
-                className="text-xs uppercase tracking-widest font-medium border-b border-zinc-700 hover:border-white hover:text-white text-zinc-400 transition-colors ml-4 whitespace-nowrap"
-              >
-                Subscribe
-              </button>
-            </form>
+
           </div>
 
           {/* Shop */}

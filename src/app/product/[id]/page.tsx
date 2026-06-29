@@ -11,7 +11,7 @@ import ProductCard from "@/Components/ProductCard";
 export default function ProductDetail() {
   const params = useParams();
   const id = params.id as string;
-  const { addToCart } = useCart();
+  const { cartItems, addToCart, updateQuantity, removeFromCart } = useCart();
   
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [product, setProduct] = useState<any>(null);
@@ -236,12 +236,43 @@ export default function ProductDetail() {
               )}
 
               <div className="mt-8 flex gap-4">
-                <button
-                  onClick={handleAddToCart}
-                  className="flex-1 bg-zinc-900 border border-transparent py-4 px-8 flex items-center justify-center text-[11px] font-bold tracking-[0.15em] text-white hover:bg-black transition-all duration-500 shadow-xl hover:shadow-2xl hover:-translate-y-0.5 focus:outline-none uppercase rounded-sm"
-                >
-                  Add to Cart
-                </button>
+                {(() => {
+                  const cartItemId = `${product._id}-${selectedSize || "default"}-${selectedColor || "default"}`;
+                  const cartItem = cartItems.find((i) => i.cartItemId === cartItemId);
+                  const count = cartItem ? cartItem.quantity : 0;
+
+                  return count === 0 ? (
+                    <button
+                      onClick={handleAddToCart}
+                      className="flex-1 bg-zinc-900 border border-transparent py-4 px-8 flex items-center justify-center text-[11px] font-bold tracking-[0.15em] text-white hover:bg-black transition-all duration-500 shadow-xl hover:shadow-2xl hover:-translate-y-0.5 focus:outline-none uppercase rounded-sm"
+                    >
+                      Add to Cart
+                    </button>
+                  ) : (
+                    <div className="flex-1 bg-zinc-900 border border-transparent py-0 flex items-center justify-between text-[11px] font-bold tracking-[0.15em] text-white transition-all duration-500 shadow-xl rounded-sm">
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (count > 1) updateQuantity(cartItemId, count - 1);
+                          else removeFromCart(cartItemId);
+                        }}
+                        className="w-16 h-full min-h-[50px] flex items-center justify-center hover:bg-black transition-colors"
+                      >
+                        -
+                      </button>
+                      <span className="flex-1 text-center py-4">{count}</span>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          updateQuantity(cartItemId, count + 1);
+                        }}
+                        className="w-16 h-full min-h-[50px] flex items-center justify-center hover:bg-black transition-colors"
+                      >
+                        +
+                      </button>
+                    </div>
+                  );
+                })()}
                 <WishlistButton 
                   product={product} 
                   className="flex-none p-4 border border-zinc-200 bg-white text-zinc-900 hover:bg-zinc-50 transition-colors duration-300 flex items-center justify-center" 
